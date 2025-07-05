@@ -27,6 +27,14 @@ const client = new Client({
 
 const PREFIX = 'y!';
 
+const HELP_TEXT = `📖  **YouTube Music Bot コマンド一覧**\n\n` +
+`• y!play <url|検索語>  … 再生/キュー追加\n` +
+`• y!skip                … スキップ\n` +
+`• y!stop                … 停止 & 切断\n` +
+`• y!queue               … キュー表示\n` +
+`• y!clean               … Bot メッセージ削除\n` +
+`• y!help                … このヘルプを表示`;
+
 type Song = {
     url: string;
     requester: string; // user id
@@ -145,27 +153,7 @@ client.once('ready', () => {
     console.log(`Logged in as ${client.user?.tag}!`);
 });
 
-client.on('interactionCreate', async (interaction: Interaction) => {
-    if (!interaction.isChatInputCommand()) return;
-
-    switch (interaction.commandName) {
-        case 'music':
-            await handleMusic(interaction);
-            break;
-        case 'skip':
-            await handleSkip(interaction);
-            break;
-        case 'stop':
-            await handleStop(interaction);
-            break;
-        case 'queue':
-            await handleQueue(interaction);
-            break;
-        case 'clean':
-            await handleClean(interaction);
-            break;
-    }
-});
+// スラッシュコマンドを無効化したため、interactionCreate は未使用
 
 client.on('messageCreate', async (message: Message) => {
     if (message.author.bot || !message.guild) return;
@@ -190,6 +178,9 @@ client.on('messageCreate', async (message: Message) => {
             break;
         case 'clean':
             await handleCleanTextCommand(message);
+            break;
+        case 'help':
+            await handleHelpTextCommand(message);
             break;
     }
 });
@@ -409,6 +400,10 @@ async function handleClean(interaction: ChatInputCommandInteraction) {
     const channel = interaction.channel as TextChannel;
     const count = await deleteBotMessages(channel);
     await interaction.reply(`🧹 メッセージ ${count} 件を削除しました。`);
+}
+
+async function handleHelpTextCommand(message: Message) {
+    await message.reply(HELP_TEXT);
 }
 
 client.login(process.env.DISCORD_TOKEN);
